@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Digest - TokenMeter</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #050506; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #050506;">
+    <tr>
+      <td align="center" style="padding: 48px 24px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px;">
+          
+          <!-- Logo + Date -->
+          <tr>
+            <td style="padding-bottom: 32px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>
+                    <table role="presentation" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="background: linear-gradient(135deg, #6366F1, #8B5CF6); width: 40px; height: 40px; border-radius: 10px; text-align: center; vertical-align: middle;">
+                          <span style="color: white; font-size: 18px; font-weight: 700;">$</span>
+                        </td>
+                        <td style="padding-left: 10px; color: #FAFAFA; font-size: 20px; font-weight: 700;">
+                          TokenMeter
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right">
+                    <span style="color: #666666; font-size: 14px;">{{digest_date}}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom: 32px;">
+              <h1 style="margin: 0 0 8px 0; color: #FAFAFA; font-size: 28px; font-weight: 700;">
+                ☀️ Good morning, {{user_name}}
+              </h1>
+              <p style="margin: 0; color: #888888; font-size: 16px;">
+                Here's your AI spending summary for yesterday.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Key Stats -->
+          <tr>
+            <td style="padding-bottom: 24px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td width="32%" style="padding-right: 8px;">
+                    <div style="background: linear-gradient(145deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05)); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 16px; padding: 24px; text-align: center;">
+                      <div style="color: #888888; font-size: 11px; letter-spacing: 0.1em; margin-bottom: 8px;">YESTERDAY</div>
+                      <div style="color: #FAFAFA; font-size: 28px; font-weight: 700;">{{yesterday_spend}}</div>
+                      <div style="color: {{yesterday_trend_color}}; font-size: 12px; margin-top: 4px;">{{yesterday_trend}}</div>
+                    </div>
+                  </td>
+                  <td width="32%" style="padding: 0 8px;">
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; text-align: center;">
+                      <div style="color: #888888; font-size: 11px; letter-spacing: 0.1em; margin-bottom: 8px;">THIS MONTH</div>
+                      <div style="color: #FAFAFA; font-size: 28px; font-weight: 700;">{{month_spend}}</div>
+                      <div style="color: #888888; font-size: 12px; margin-top: 4px;">of {{month_budget}}</div>
+                    </div>
+                  </td>
+                  <td width="32%" style="padding-left: 8px;">
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; text-align: center;">
+                      <div style="color: #888888; font-size: 11px; letter-spacing: 0.1em; margin-bottom: 8px;">TOKENS</div>
+                      <div style="color: #FAFAFA; font-size: 28px; font-weight: 700;">{{yesterday_tokens}}</div>
+                      <div style="color: #888888; font-size: 12px; margin-top: 4px;">processed</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Provider Breakdown -->
+          <tr>
+            <td style="background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 28px; margin-bottom: 24px;">
+              
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="padding-bottom: 20px;">
+                    <span style="color: #FAFAFA; font-size: 16px; font-weight: 600;">Spend by Provider</span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Provider Row 1 -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 16px;">
+                <tr>
+                  <td>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="width: 40px;">
+                          <div style="width: 36px; height: 36px; background: rgba(217, 119, 87, 0.15); border: 1px solid rgba(217, 119, 87, 0.3); border-radius: 8px; text-align: center; line-height: 36px; color: #D97757; font-weight: 700; font-size: 14px;">A</div>
+                        </td>
+                        <td style="padding: 0 16px;">
+                          <div style="color: #FAFAFA; font-size: 14px; font-weight: 500;">Anthropic</div>
+                        </td>
+                        <td align="right" style="color: #FAFAFA; font-size: 14px; font-weight: 600;">{{anthropic_spend}}</td>
+                      </tr>
+                    </table>
+                    <div style="margin-top: 8px; margin-left: 52px;">
+                      <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; overflow: hidden;">
+                        <div style="background: #D97757; height: 100%; width: {{anthropic_percent}}%; border-radius: 4px;"></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Provider Row 2 -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 16px;">
+                <tr>
+                  <td>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="width: 40px;">
+                          <div style="width: 36px; height: 36px; background: rgba(16, 163, 127, 0.15); border: 1px solid rgba(16, 163, 127, 0.3); border-radius: 8px; text-align: center; line-height: 36px; color: #10A37F; font-weight: 700; font-size: 14px;">O</div>
+                        </td>
+                        <td style="padding: 0 16px;">
+                          <div style="color: #FAFAFA; font-size: 14px; font-weight: 500;">OpenAI</div>
+                        </td>
+                        <td align="right" style="color: #FAFAFA; font-size: 14px; font-weight: 600;">{{openai_spend}}</td>
+                      </tr>
+                    </table>
+                    <div style="margin-top: 8px; margin-left: 52px;">
+                      <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; overflow: hidden;">
+                        <div style="background: #10A37F; height: 100%; width: {{openai_percent}}%; border-radius: 4px;"></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Provider Row 3 -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="width: 40px;">
+                          <div style="width: 36px; height: 36px; background: rgba(0, 120, 212, 0.15); border: 1px solid rgba(0, 120, 212, 0.3); border-radius: 8px; text-align: center; line-height: 36px; color: #0078D4; font-weight: 700; font-size: 12px;">Az</div>
+                        </td>
+                        <td style="padding: 0 16px;">
+                          <div style="color: #FAFAFA; font-size: 14px; font-weight: 500;">Azure OpenAI</div>
+                        </td>
+                        <td align="right" style="color: #FAFAFA; font-size: 14px; font-weight: 600;">{{azure_spend}}</td>
+                      </tr>
+                    </table>
+                    <div style="margin-top: 8px; margin-left: 52px;">
+                      <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; overflow: hidden;">
+                        <div style="background: #0078D4; height: 100%; width: {{azure_percent}}%; border-radius: 4px;"></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Spacer -->
+          <tr><td style="height: 24px;"></td></tr>
+
+          <!-- Top Models -->
+          <tr>
+            <td style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="padding-bottom: 16px;">
+                    <span style="color: #FAFAFA; font-size: 14px; font-weight: 600;">Top Models Yesterday</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="color: #AAAAAA; font-size: 13px;">1. {{model_1_name}}</td>
+                        <td align="right" style="color: #FAFAFA; font-size: 13px; font-weight: 500;">{{model_1_cost}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="color: #AAAAAA; font-size: 13px;">2. {{model_2_name}}</td>
+                        <td align="right" style="color: #FAFAFA; font-size: 13px; font-weight: 500;">{{model_2_cost}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="color: #AAAAAA; font-size: 13px;">3. {{model_3_name}}</td>
+                        <td align="right" style="color: #FAFAFA; font-size: 13px; font-weight: 500;">{{model_3_cost}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="padding: 32px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{dashboard_url}}" style="display: inline-block; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; text-decoration: none; padding: 14px 40px; border-radius: 10px; font-size: 15px; font-weight: 600;">
+                      View Full Dashboard →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.04);">
+              <p style="margin: 0 0 8px 0; color: #666666; font-size: 12px;">
+                You're receiving this daily digest for {{org_name}}.
+              </p>
+              <p style="margin: 0; color: #444444; font-size: 12px;">
+                <a href="{{digest_settings_url}}" style="color: #666666; text-decoration: none;">Change frequency</a>
+                &nbsp;•&nbsp;
+                <a href="{{unsubscribe_url}}" style="color: #666666; text-decoration: none;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

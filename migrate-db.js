@@ -1,0 +1,145 @@
+import pkg from 'pg';
+import dotenv from 'dotenv';
+import fs from 'fs';
+
+const { Client } = pkg;
+
+dotenv.config({ path: './api/.env' });
+
+// Parse Supabase connection string or build one from environment variables
+// Supabase connection format: postgresql://postgres:[PASSWORD]@[HOST]:[PORT]/postgres
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_KEY');
+  process.exit(1);
+}
+
+// Extract host from URL
+const hostMatch = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/);
+if (!hostMatch) {
+  console.error('❌ Invalid SUPABASE_URL format');
+  process.exit(1);
+}
+
+const host = `${hostMatch[1]}.supabase.co`;
+const password = supabaseServiceKey;
+
+const client = new Client({
+  user: 'postgres',
+  password: password,
+  host: host,
+  port: 5432,
+  database: 'postgres',
+  ssl: { rejectUnauthorized: false },
+});
+
+// Read the migration SQL
+const migrationSQL = `
+-- LLM Provider Ratings Table
+CREATE TABLE IF NOT EXISTS public.provider_ratings (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  provider_id text UNIQUE NOT NULL,
+  name text NOT NULL,
+  logo text,
+  color text,
+  rating numeric(2,1) NOT NULL,
+  reviews integer DEFAULT 0,
+  description text,
+  status text DEFAULT 'operational',
+  pros jsonb DEFAULT '[]'::jsonb,
+  cons jsonb DEFAULT '[]'::jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- LLM Models Table
+CREATE TABLE IF NOT EXISTS public.llm_models (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  provider_id uuid NOT NULL REFERENCES public.provider_ratings(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  input_price numeric(10,4) NOT NULL,
+  output_price numeric(10,4) NOT NULL,
+  context_window text,
+  speed text,
+  quality numeric(2,1),
+  best_for text,
+  best_deal boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+-- Enable RLS on provider tables
+ALTER TABLE public.provider_ratings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.llm_models ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for provider ratings (public read access)
+CREATE POLICY IF NOT EXISTS "Everyone can view provider ratings"
+  ON public.provider_ratings FOR SELECT
+  USING (true);
+
+CREATE POLICY IF NOT EXISTS "Everyone can view LLM models"
+  ON public.llm_models FOR SELECT
+  USING (true);
+
+-- Seed Provider Ratings Data
+INSERT INTO public.provider_ratings (provider_id, name, logo, color, rating, reviews, description, status, pros, cons)
+VALUES
+  ('anthropic', 'Anthropic', 'A', '#D97757', 4.8, 2847, 'Leading AI safety company with Claude models', 'operational', '["Best safety alignment", "Large context window", "Excellent writing"]'::jsonb, '["Higher pricing", "Rate limits on free tier"]'::jsonb),
+  ('openai', 'OpenAI', 'O', '#10A37F', 4.7, 12453, 'Industry pioneer with GPT models and DALL-E', 'operational', '["Widest adoption", "Great ecosystem", "Fast iteration"]'::jsonb, '["Context smaller than Claude", "Variable quality updates"]'::jsonb),
+  ('google', 'Google', 'G', '#4285F4', 4.5, 3892, 'Gemini models with multimodal capabilities', 'operational', '["Largest context window", "Competitive pricing", "Strong multimodal"]'::jsonb, '["Availability varies by region", "API complexity"]'::jsonb),
+  ('mistral', 'Mistral', 'M', '#FF7000', 4.4, 1256, 'European AI lab with efficient open models', 'operational', '["GDPR compliant", "Open weights available", "Good value"]'::jsonb, '["Smaller context", "Less ecosystem"]'::jsonb),
+  ('cohere', 'Cohere', 'C', '#D18EE2', 4.3, 892, 'Enterprise-focused with RAG specialization', 'operational', '["Best-in-class RAG", "Enterprise ready", "Good embeddings"]'::jsonb, '["Smaller model range", "Less general purpose"]'::jsonb),
+  ('aws', 'AWS Bedrock', 'λ', '#FF9900', 4.6, 4521, 'Multi-model platform with AWS integration', 'operational', '["AWS integration", "Multiple models", "Enterprise security"]'::jsonb, '["AWS lock-in", "Complex pricing"]'::jsonb)
+ON CONFLICT (provider_id) DO NOTHING;
+
+-- Seed LLM Models Data (using CONNECT BY or direct insert)
+INSERT INTO public.llm_models (provider_id, name, input_price, output_price, context_window, speed, quality, best_for, best_deal)
+SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'anthropic'), 'Claude Opus 4', 15.00, 75.00, '200K', 'Medium', 5, 'Complex reasoning', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'anthropic'), 'Claude Sonnet 4', 3.00, 15.00, '200K', 'Fast', 4.5, 'Balanced tasks', true
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'anthropic'), 'Claude Haiku 3.5', 0.25, 1.25, '200K', 'Fastest', 3.5, 'High volume', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'openai'), 'GPT-4o', 2.50, 10.00, '128K', 'Fast', 4.5, 'General purpose', true
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'openai'), 'GPT-4 Turbo', 10.00, 30.00, '128K', 'Medium', 5, 'Complex tasks', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'openai'), 'GPT-4o Mini', 0.15, 0.60, '128K', 'Fastest', 3.5, 'Cost optimization', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'openai'), 'o1-preview', 15.00, 60.00, '128K', 'Slow', 5, 'Reasoning tasks', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'google'), 'Gemini 2.0 Pro', 1.25, 5.00, '1M', 'Fast', 4.5, 'Long documents', true
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'google'), 'Gemini 2.0 Flash', 0.075, 0.30, '1M', 'Fastest', 3.5, 'High volume', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'google'), 'Gemini 1.5 Pro', 1.25, 5.00, '2M', 'Medium', 4, 'Massive context', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'mistral'), 'Mistral Large', 2.00, 6.00, '128K', 'Fast', 4, 'European compliance', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'mistral'), 'Mistral Medium', 2.70, 8.10, '32K', 'Fast', 3.5, 'Balanced workloads', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'mistral'), 'Mistral Small', 0.20, 0.60, '32K', 'Fastest', 3, 'Cost savings', true
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'cohere'), 'Command R+', 2.50, 10.00, '128K', 'Medium', 4, 'RAG applications', true
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'cohere'), 'Command R', 0.15, 0.60, '128K', 'Fast', 3.5, 'Retrieval tasks', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'cohere'), 'Embed v3', 0.10, 0, '512', 'Fastest', 4, 'Embeddings', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'aws'), 'Claude (Bedrock)', 3.00, 15.00, '200K', 'Fast', 4.5, 'AWS workloads', false
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'aws'), 'Titan Text', 0.30, 0.40, '8K', 'Fastest', 3, 'Simple tasks', true
+UNION ALL SELECT (SELECT id FROM public.provider_ratings WHERE provider_id = 'aws'), 'Llama 3 70B', 2.65, 3.50, '8K', 'Medium', 4, 'Open source needs', false
+ON CONFLICT DO NOTHING;
+`;
+
+async function runMigration() {
+  try {
+    console.log('🔄 Connecting to Supabase database...');
+    console.log('  Host:', host);
+    console.log('  User: postgres');
+    await client.connect();
+    console.log('✅ Connected successfully');
+
+    console.log('🔄 Running migration...');
+    await client.query(migrationSQL);
+
+    console.log('✅ Migration completed successfully!');
+  } catch (error) {
+    console.error('❌ Migration failed:', error.message);
+    console.error('   Code:', error.code);
+    if (error.detail) console.error('   Detail:', error.detail);
+    if (error.hint) console.error('   Hint:', error.hint);
+    console.error('   Full error:', error);
+    process.exit(1);
+  } finally {
+    await client.end();
+  }
+}
+
+runMigration();

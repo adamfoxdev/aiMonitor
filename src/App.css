@@ -1,0 +1,75 @@
+.dev-nav {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(10, 10, 11, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  color: #fafafa;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.dev-nav-title {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dev-nav-links {
+  display: grid;
+  gap: 8px;
+}
+
+.dev-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s ease;
+}
+
+.dev-nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.dev-nav-link.active {
+  color: #050506;
+  background: linear-gradient(135deg, #f7c56c, #f9e0b4);
+}
+
+@media (max-width: 700px) {
+  .dev-nav {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dev-nav-links {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 6px;
+    overflow-x: auto;
+  }
+
+  .dev-nav-link {
+    white-space: nowrap;
+  }
+}
